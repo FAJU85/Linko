@@ -1,0 +1,6 @@
+{
+  "name": "OmniLink - Creator Landing Page & Monetization Studio",
+  "description": "Production-grade Linktree clone with drag-and-drop link organization, real-time analytics, monetization tip jars and subscription tiers, password-protected links, newsletter capture, custom domain support, and automated monthly reporting.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
