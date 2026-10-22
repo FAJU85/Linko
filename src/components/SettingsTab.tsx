@@ -316,6 +316,59 @@ export const SettingsTab: React.FC<SettingsTabProps> = ({ profile, setProfile })
               </div>
             </div>
 
+            {/* Cloudflare Pages Deployment Instructions */}
+            <div className="pt-3 border-t border-amber-200/50 dark:border-amber-900/30 space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-neutral-900 dark:text-white">
+                  Deploy to Cloudflare Pages (Step-by-Step)
+                </span>
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-amber-500/10 text-amber-600 dark:text-amber-400">
+                  wrangler.jsonc & edge functions ready
+                </span>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                <div className="p-3 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-white/70 dark:bg-neutral-900/70 space-y-1.5">
+                  <div className="font-semibold text-neutral-900 dark:text-white">Option A: Git Repository Connect</div>
+                  <p className="text-[11px] text-neutral-600 dark:text-neutral-400">
+                    Connect your repo in Cloudflare Dashboard &rarr; Pages &rarr; Create a project:
+                  </p>
+                  <ul className="text-[11px] font-mono space-y-0.5 text-neutral-700 dark:text-neutral-300">
+                    <li>· Framework: <strong>Vite</strong></li>
+                    <li>· Build command: <strong>npm run build</strong></li>
+                    <li>· Output directory: <strong>dist</strong></li>
+                    <li>· Node.js version: <strong>20</strong></li>
+                  </ul>
+                </div>
+
+                <div className="p-3 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-white/70 dark:bg-neutral-900/70 space-y-1.5">
+                  <div className="font-semibold text-neutral-900 dark:text-white">Option B: Direct CLI Deployment</div>
+                  <p className="text-[11px] text-neutral-600 dark:text-neutral-400">
+                    Run in your terminal using Wrangler CLI:
+                  </p>
+                  <div className="flex items-center gap-1.5 pt-0.5">
+                    <input
+                      type="text"
+                      readOnly
+                      value="npx wrangler pages deploy dist"
+                      className="w-full px-2 py-1 text-[11px] font-mono rounded border border-neutral-200 dark:border-neutral-700 bg-neutral-100 dark:bg-neutral-800 text-neutral-800 dark:text-neutral-200 select-all"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        navigator.clipboard.writeText('npx wrangler pages deploy dist');
+                        alert('Copied Wrangler deploy command!');
+                      }}
+                      className="p-1 rounded border border-neutral-200 dark:border-neutral-700 hover:bg-neutral-100 dark:hover:bg-neutral-800 cursor-pointer"
+                      title="Copy Command"
+                    >
+                      <Copy className="w-3.5 h-3.5 text-neutral-500" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             {/* Copy Cloudflare BIND Format */}
             <div className="pt-2 flex items-center justify-between border-t border-amber-200/50 dark:border-amber-900/30">
               <span className="text-[11px] font-mono text-neutral-500 dark:text-neutral-400">
