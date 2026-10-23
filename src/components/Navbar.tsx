@@ -16,8 +16,8 @@ import { getTranslation } from '../utils/i18n.ts';
 import { useAuth } from '../context/AuthContext.tsx';
 
 interface NavbarProps {
-  activeTab: 'links' | 'appearance' | 'analytics' | 'monetize' | 'audience' | 'settings';
-  setActiveTab: (tab: 'links' | 'appearance' | 'analytics' | 'monetize' | 'audience' | 'settings') => void;
+  activeTab: 'links' | 'appearance' | 'analytics' | 'monetize' | 'store' | 'audience' | 'settings';
+  setActiveTab: (tab: 'links' | 'appearance' | 'analytics' | 'monetize' | 'store' | 'audience' | 'settings') => void;
   lang: SupportedLanguage;
   setLang: (lang: SupportedLanguage) => void;
   isDarkMode: boolean;
@@ -118,6 +118,20 @@ export const Navbar: React.FC<NavbarProps> = ({
           }`}
         >
           {getTranslation(lang, 'monetization')}
+        </button>
+        <button
+          type="button"
+          onClick={() => setActiveTab('store')}
+          className={`cursor-pointer transition-colors whitespace-nowrap pb-0.5 border-b-2 flex items-center gap-1.5 ${
+            activeTab === 'store'
+              ? 'border-pink-600 text-pink-600 dark:border-pink-400 dark:text-pink-400 font-semibold'
+              : 'border-transparent hover:text-pink-600 dark:hover:text-pink-400'
+          }`}
+        >
+          <span>Store</span>
+          <span className="px-1.5 py-0.2 rounded text-[10px] font-bold bg-pink-100 text-pink-700 dark:bg-pink-950/60 dark:text-pink-300">
+            Gumroad
+          </span>
         </button>
         <button
           type="button"

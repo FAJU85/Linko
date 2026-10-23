@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Lock,
   Unlock,
@@ -18,6 +18,7 @@ import {
   X,
   MapPin,
   Sparkles,
+  ShoppingBag,
 } from 'lucide-react';
 import {
   CreatorProfile,
@@ -25,6 +26,8 @@ import {
   SubscriberRecord,
   TipTransaction,
   SupportedLanguage,
+  DigitalProduct,
+  ProductOrder,
 } from '../types.ts';
 import { getTranslation } from '../utils/i18n.ts';
 import {
@@ -33,13 +36,17 @@ import {
   notifySecretUnlocked,
   notifyTierSubscribed,
 } from '../utils/telegram.ts';
+import { updateDynamicMetaTags } from '../utils/seo.ts';
+import { ProductCard } from './DigitalStore/ProductCard.tsx';
 
 interface PublicProfileViewProps {
   profile: CreatorProfile;
   links: LinkItem[];
   setLinks: React.Dispatch<React.SetStateAction<LinkItem[]>>;
+  products?: DigitalProduct[];
   onAddSubscriber: (sub: SubscriberRecord) => void;
   onAddTip: (tip: TipTransaction) => void;
+  onAddOrder?: (order: ProductOrder) => void;
   lang: SupportedLanguage;
   isStandalone?: boolean;
   onCloseStandalone?: () => void;
@@ -50,14 +57,20 @@ export const PublicProfileView: React.FC<PublicProfileViewProps> = ({
   profile,
   links,
   setLinks,
+  products = [],
   onAddSubscriber,
   onAddTip,
+  onAddOrder,
   lang,
   isStandalone = false,
   onCloseStandalone,
   onOpenShareModal,
 }) => {
   const theme = profile.theme;
+
+  useEffect(() => {
+    updateDynamicMetaTags(profile);
+  }, [profile]);
 
   // Password Unlock Challenge Modal State
   const [lockedLinkSelected, setLockedLinkSelected] = useState<LinkItem | null>(null);
@@ -719,6 +732,35 @@ export const PublicProfileView: React.FC<PublicProfileViewProps> = ({
             );
           })}
         </div>
+
+        {/* Digital Products Store (Gumroad-style Storefront) */}
+        {products && products.filter((p) => p.isPublished).length > 0 && (
+          <div className="w-full space-y-3 pt-2">
+            <div className="flex items-center justify-between px-1">
+              <div className="flex items-center gap-1.5 text-xs font-bold tracking-wider uppercase opacity-80">
+                <ShoppingBag className="w-3.5 h-3.5 text-pink-500" />
+                <span>Digital Goods & Downloads</span>
+              </div>
+              <span className="text-[10px] font-mono opacity-60">
+                Gumroad Powered
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 gap-3">
+              {products
+                .filter((p) => p.isPublished)
+                .map((product) => (
+                  <ProductCard
+                    key={product.id}
+                    product={product}
+                    profile={profile}
+                    onOrderCompleted={onAddOrder}
+                    compact={true}
+                  />
+                ))}
+            </div>
+          </div>
+        )}
 
         {/* Social Media Links Bar */}
         <div className="flex items-center justify-center gap-4 pt-4">

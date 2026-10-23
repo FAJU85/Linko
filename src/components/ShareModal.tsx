@@ -10,6 +10,7 @@ import {
   Send,
 } from 'lucide-react';
 import { CreatorProfile } from '../types.ts';
+import { QrCodeCard } from './QrCodeCard.tsx';
 
 interface ShareModalProps {
   isOpen: boolean;
@@ -49,7 +50,7 @@ export const ShareModal: React.FC<ShareModalProps> = ({ isOpen, onClose, profile
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
-      <div className="relative w-full max-w-lg bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-2xl shadow-2xl p-6 overflow-hidden">
+      <div className="relative w-full max-w-xl max-h-[90vh] bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-2xl shadow-2xl p-6 overflow-y-auto">
         {/* Header */}
         <div className="flex items-center justify-between pb-4 border-b border-neutral-100 dark:border-neutral-800">
           <div className="flex items-center gap-2">
@@ -129,49 +130,15 @@ export const ShareModal: React.FC<ShareModalProps> = ({ isOpen, onClose, profile
             </div>
           </div>
 
-          {/* QR Code Matrix Display */}
-          <div className="p-4 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-800/40 flex items-center justify-between gap-4">
-            <div className="space-y-1">
-              <div className="flex items-center gap-1.5 text-xs font-semibold text-neutral-900 dark:text-white">
-                <QrCode className="w-4 h-4 text-sky-500" />
-                <span>Printable QR Code</span>
-              </div>
-              <p className="text-xs text-neutral-500 dark:text-neutral-400">
-                Place on business cards, YouTube video overlays, or event banners.
-              </p>
-            </div>
-            {/* Clean SVG QR Code Representation */}
-            <div className="p-2 bg-white rounded-lg border border-neutral-200 shadow-xs shrink-0">
-              <svg className="w-16 h-16" viewBox="0 0 100 100" fill="none">
-                <rect width="100" height="100" fill="white" />
-                {/* QR corner 1 */}
-                <rect x="10" y="10" width="24" height="24" fill="#0F172A" rx="2" />
-                <rect x="14" y="14" width="16" height="16" fill="white" rx="1" />
-                <rect x="18" y="18" width="8" height="8" fill="#0F172A" rx="1" />
-                {/* QR corner 2 */}
-                <rect x="66" y="10" width="24" height="24" fill="#0F172A" rx="2" />
-                <rect x="70" y="14" width="16" height="16" fill="white" rx="1" />
-                <rect x="74" y="18" width="8" height="8" fill="#0F172A" rx="1" />
-                {/* QR corner 3 */}
-                <rect x="10" y="66" width="24" height="24" fill="#0F172A" rx="2" />
-                <rect x="14" y="70" width="16" height="16" fill="white" rx="1" />
-                <rect x="18" y="74" width="8" height="8" fill="#0F172A" rx="1" />
-                {/* Data blocks */}
-                <rect x="42" y="12" width="6" height="6" fill="#0F172A" />
-                <rect x="52" y="16" width="6" height="6" fill="#0F172A" />
-                <rect x="44" y="26" width="6" height="6" fill="#0F172A" />
-                <rect x="12" y="44" width="6" height="6" fill="#0F172A" />
-                <rect x="24" y="48" width="6" height="6" fill="#0F172A" />
-                <rect x="42" y="42" width="16" height="16" fill="#0284C7" rx="2" />
-                <rect x="68" y="44" width="6" height="6" fill="#0F172A" />
-                <rect x="80" y="48" width="6" height="6" fill="#0F172A" />
-                <rect x="44" y="68" width="6" height="6" fill="#0F172A" />
-                <rect x="56" y="74" width="6" height="6" fill="#0F172A" />
-                <rect x="68" y="68" width="6" height="6" fill="#0F172A" />
-                <rect x="78" y="78" width="6" height="6" fill="#0F172A" />
-              </svg>
-            </div>
-          </div>
+          {/* Interactive Backend-Powered QR Code Generator */}
+          <QrCodeCard
+            url={baseUrl}
+            handle={profile.handle}
+            creatorName={profile.name}
+            avatarUrl={profile.avatarUrl}
+            title="Profile QR Code"
+            subtitle="Scannable QR code encoded with your live profile URL. Download as crisp PNG or vector SVG."
+          />
 
           {/* Campaign UTM Generator Accordion */}
           <div className="pt-2">

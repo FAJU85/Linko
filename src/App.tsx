@@ -6,6 +6,8 @@ import {
   SubscriberRecord,
   TipTransaction,
   SupportedLanguage,
+  DigitalProduct,
+  ProductOrder,
 } from './types.ts';
 import {
   INITIAL_CREATOR_PROFILE,
@@ -13,18 +15,22 @@ import {
   INITIAL_ANALYTICS,
   INITIAL_SUBSCRIBERS,
   INITIAL_TIPS,
+  INITIAL_PRODUCTS,
+  INITIAL_ORDERS,
 } from './data/mockData.ts';
 import { Navbar } from './components/Navbar.tsx';
 import { LinksEditor } from './components/LinksEditor.tsx';
 import { ThemeSelector } from './components/ThemeSelector.tsx';
 import { AnalyticsDashboard } from './components/AnalyticsDashboard.tsx';
 import { MonetizationTab } from './components/MonetizationTab.tsx';
+import { DigitalStoreTab } from './components/DigitalStore/DigitalStoreTab.tsx';
 import { SubscribersTab } from './components/SubscribersTab.tsx';
 import { SettingsTab } from './components/SettingsTab.tsx';
 import { PublicProfileView } from './components/PublicProfileView.tsx';
 import { ShareModal } from './components/ShareModal.tsx';
 import { AuthModal } from './components/AuthModal.tsx';
 import { AuthProvider, useAuth } from './context/AuthContext.tsx';
+import { updateDynamicMetaTags } from './utils/seo.ts';
 import { Smartphone, ExternalLink } from 'lucide-react';
 
 function AppInner() {
@@ -106,9 +112,30 @@ function AppInner() {
     return INITIAL_TIPS;
   });
 
+  // Products & Orders (Gumroad Creator Commerce)
+  const [products, setProducts] = useState<DigitalProduct[]>(() => {
+    const saved = localStorage.getItem('omnilink_products');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) {}
+    }
+    return INITIAL_PRODUCTS;
+  });
+
+  const [orders, setOrders] = useState<ProductOrder[]>(() => {
+    const saved = localStorage.getItem('omnilink_orders');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) {}
+    }
+    return INITIAL_ORDERS;
+  });
+
   // Workspace Navigation & Controls
   const [activeTab, setActiveTab] = useState<
-    'links' | 'appearance' | 'analytics' | 'monetize' | 'audience' | 'settings'
+    'links' | 'appearance' | 'analytics' | 'monetize' | 'store' | 'audience' | 'settings'
   >('links');
   const [isDarkMode, setIsDarkMode] = useState<boolean>(true);
   const [lang, setLang] = useState<SupportedLanguage>('en');
@@ -129,6 +156,7 @@ function AppInner() {
   // Persist local changes
   useEffect(() => {
     localStorage.setItem('omnilink_profile', JSON.stringify(profile));
+    updateDynamicMetaTags(profile);
   }, [profile]);
 
   useEffect(() => {
@@ -146,6 +174,29 @@ function AppInner() {
   useEffect(() => {
     localStorage.setItem('omnilink_tips', JSON.stringify(tips));
   }, [tips]);
+
+  useEffect(() => {
+    localStorage.setItem('omnilink_products', JSON.stringify(products));
+  }, [products]);
+
+  useEffect(() => {
+    localStorage.setItem('omnilink_orders', JSON.stringify(orders));
+  }, [orders]);
+
+  // Handle new digital product order in real time
+  const handleAddOrder = (newOrder: ProductOrder) => {
+    setOrders((prev) => [newOrder, ...prev]);
+    setProducts((prev) =>
+      prev.map((p) =>
+        p.id === newOrder.productId ? { ...p, salesCount: p.salesCount + 1 } : p
+      )
+    );
+    setAnalytics((prev) => ({
+      ...prev,
+      totalRevenue: prev.totalRevenue + newOrder.amountPaid,
+      totalClicks: prev.totalClicks + 1,
+    }));
+  };
 
   // Handle new newsletter subscriber in real time
   const handleAddSubscriber = (newSub: SubscriberRecord) => {
@@ -190,8 +241,10 @@ function AppInner() {
           profile={profile}
           links={links}
           setLinks={setLinks}
+          products={products}
           onAddSubscriber={handleAddSubscriber}
           onAddTip={handleAddTip}
+          onAddOrder={handleAddOrder}
           lang={lang}
           isStandalone={true}
           onCloseStandalone={() => setShowFullPublicView(false)}
@@ -265,6 +318,16 @@ function AppInner() {
             />
           )}
 
+          {activeTab === 'store' && (
+            <DigitalStoreTab
+              products={products}
+              setProducts={setProducts}
+              orders={orders}
+              setOrders={setOrders}
+              profile={profile}
+            />
+          )}
+
           {activeTab === 'audience' && (
             <SubscribersTab
               subscribers={subscribers}
@@ -312,8 +375,10 @@ function AppInner() {
                   profile={profile}
                   links={links}
                   setLinks={setLinks}
+                  products={products}
                   onAddSubscriber={handleAddSubscriber}
                   onAddTip={handleAddTip}
+                  onAddOrder={handleAddOrder}
                   lang={lang}
                   isStandalone={false}
                   onOpenShareModal={() => setShowShareModal(true)}

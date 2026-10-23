@@ -20,7 +20,8 @@ export type LinkType =
   | 'tip_jar'
   | 'subscription_tiers'
   | 'spotify'
-  | 'youtube';
+  | 'youtube'
+  | 'product';
 
 export interface SubscriptionTier {
   id: string;
@@ -31,6 +32,46 @@ export interface SubscriptionTier {
   perks: string[];
   subscriberCount: number;
   highlighted?: boolean;
+}
+
+export interface DigitalProduct {
+  id: string;
+  title: string;
+  tagline: string;
+  description: string;
+  coverImage: string;
+  price: number;
+  suggestedPrice?: number;
+  minPrice: number; // 0 for pay-what-you-want $0+
+  payWhatYouWant: boolean;
+  currency: string;
+  fileType: 'pdf' | 'zip' | 'code' | 'audio' | 'figma' | 'notion' | 'bundle';
+  fileSize: string;
+  deliverableName: string;
+  deliverableContent: string;
+  downloadUrl?: string;
+  licenseKeyRequired?: boolean;
+  salesCount: number;
+  rating: number;
+  reviewsCount: number;
+  isPublished: boolean;
+  category: string;
+  tags: string[];
+  previewHighlights: string[];
+}
+
+export interface ProductOrder {
+  id: string;
+  productId: string;
+  productTitle: string;
+  customerEmail: string;
+  amountPaid: number;
+  discountCode?: string;
+  discountAmount?: number;
+  licenseKey?: string;
+  downloadUrl: string;
+  date: string;
+  status: 'completed';
 }
 
 export interface LinkItem {
@@ -56,6 +97,9 @@ export interface LinkItem {
     label: string;
   };
   subscriptionTiers?: SubscriptionTier[];
+  // Gumroad Product details
+  productId?: string;
+  product?: DigitalProduct;
   // Analytics
   clicks: number;
   uniqueClicks: number;
