@@ -21,7 +21,98 @@ export type LinkType =
   | 'subscription_tiers'
   | 'spotify'
   | 'youtube'
-  | 'product';
+  | 'product'
+  | 'restaurant_menu';
+
+// QR Studio Types (QR Monkey & QRCodeChimp)
+export type QrEyeShape = 'square' | 'rounded' | 'circle';
+export type QrBodyShape = 'square' | 'dots' | 'rounded';
+export type QrFrameStyle = 'none' | 'scan-me-bottom' | 'scan-me-top' | 'polaroid' | 'badge';
+export type QrLogoType = 'none' | 'avatar' | 'star' | 'sparkles' | 'link' | 'coffee' | 'heart' | 'shop' | 'utensils' | 'table';
+export type QrDataType = 'url' | 'restaurant_table' | 'text' | 'wifi' | 'vcard' | 'store_product';
+
+// Restaurant & Table Order System Types
+export type DietaryTag = 'Vegan' | 'Vegetarian' | 'Gluten-Free' | 'Halal' | 'Spicy';
+export type MenuCategory = 'Starters' | 'Mains' | 'Beverages' | 'Desserts' | 'Specials';
+export type TableOrderStatus = 'Received' | 'Preparing' | 'Served' | 'Paid';
+
+export interface MenuItem {
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  category: MenuCategory;
+  dietary: DietaryTag[];
+  available: boolean;
+  imageUrl?: string;
+  prepTimeMinutes?: number;
+  calories?: number;
+  orderCount: number;
+}
+
+export interface TableOrderItem {
+  menuItemId: string;
+  name: string;
+  price: number;
+  quantity: number;
+  notes?: string;
+}
+
+export interface TableOrder {
+  id: string;
+  tableNumber: string;
+  items: TableOrderItem[];
+  subtotal: number;
+  tipAmount: number;
+  totalAmount: number;
+  status: TableOrderStatus;
+  customerName?: string;
+  specialInstructions?: string;
+  paymentStatus: 'pending' | 'settled';
+  paymentMethod: 'Dine-In Pay Later' | 'Card at Table' | 'Cash at Counter';
+  createdAt: string;
+  updatedAt: string;
+}
+
+// Webstudio-style Visual Block Canvas
+export type CanvasBlockType =
+  | 'link'
+  | 'header'
+  | 'menu_category'
+  | 'menu_item'
+  | 'product'
+  | 'qr_card'
+  | 'newsletter'
+  | 'tip_jar'
+  | 'subscription_tiers'
+  | 'spotify'
+  | 'video'
+  | 'socials'
+  | 'divider';
+
+export interface CanvasBlockStyling {
+  cardRadius?: 'none' | 'sm' | 'md' | 'xl' | 'full';
+  cardStyle?: 'solid' | 'glass' | 'outline' | 'shadow' | 'glow';
+  bgOverride?: string;
+  textColor?: string;
+  accentColor?: string;
+  padding?: 'compact' | 'normal' | 'relaxed';
+  animation?: 'none' | 'pulse' | 'bounce';
+}
+
+export interface CanvasBlock {
+  id: string;
+  type: CanvasBlockType;
+  title: string;
+  subtitle?: string;
+  badge?: string;
+  clicks?: number;
+  uniqueClicks?: number;
+  visible: boolean;
+  order: number;
+  data: Record<string, any>;
+  styling?: CanvasBlockStyling;
+}
 
 export interface SubscriptionTier {
   id: string;

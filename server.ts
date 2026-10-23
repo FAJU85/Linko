@@ -142,6 +142,28 @@ app.get('/api/seo/meta', (req, res) => {
   });
 });
 
+// API: Headless CMS Profile & Blocks REST Endpoint (Strapi / Contentful parity)
+app.get('/api/public/profile', (_req, res) => {
+  res.json({
+    data: {
+      profile: DEFAULT_SEO_PROFILE,
+      meta: {
+        version: '2026.1',
+        engine: 'omnilink-headless-cms',
+      },
+    },
+  });
+});
+
+// API: Headless Restaurant Menu REST Endpoint
+app.get('/api/public/menu', (_req, res) => {
+  res.json({
+    restaurant: 'Lumière Dining & Lounge',
+    categories: ['Starters', 'Mains', 'Beverages', 'Desserts'],
+    dineInSupported: true,
+  });
+});
+
 // API: Backend QR Engine - Generate JSON response with SVG or PNG Data URL
 app.post('/api/qr/generate', async (req, res) => {
   try {

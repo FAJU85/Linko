@@ -26,6 +26,20 @@
         "updatedAt": { "type": "string", "maxLength": 64 }
       },
       "required": ["userId", "name", "handle"]
+    },
+    "TableOrder": {
+      "title": "TableOrder",
+      "description": "Contactless restaurant dine-in table order ticket",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 64 },
+        "tableNumber": { "type": "string", "maxLength": 32 },
+        "totalAmount": { "type": "number" },
+        "status": { "type": "string", "maxLength": 32 },
+        "customerName": { "type": "string", "maxLength": 100 },
+        "syncedAt": { "type": "string", "maxLength": 64 }
+      },
+      "required": ["id", "tableNumber", "status"]
     }
   },
   "firestore": {
@@ -36,6 +50,10 @@
     "/creators/{userId}": {
       "schema": "CreatorData",
       "description": "Creator landing page profiles"
+    },
+    "/table_orders/{orderId}": {
+      "schema": "TableOrder",
+      "description": "Restaurant table order tickets"
     }
   }
 }

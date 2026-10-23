@@ -53,5 +53,18 @@ service cloud.firestore {
         && incoming().userId == existing().userId;
       allow delete: if isOwner(userId);
     }
+
+    // Table orders (guests create table orders; restaurant staff/admin reads and updates)
+    match /table_orders/{orderId} {
+      allow get: if isValidId(orderId);
+      allow list: if isSignedIn();
+      allow create: if isValidId(orderId)
+        && incoming().keys().hasAll(['id', 'tableNumber', 'status'])
+        && incoming().tableNumber is string && incoming().tableNumber.size() <= 32
+        && incoming().status is string && incoming().status.size() <= 32;
+      allow update: if isSignedIn()
+        && incoming().id == existing().id;
+      allow delete: if isSignedIn();
+    }
   }
 }

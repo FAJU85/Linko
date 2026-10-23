@@ -8,6 +8,9 @@ import {
   SupportedLanguage,
   DigitalProduct,
   ProductOrder,
+  MenuItem,
+  TableOrder,
+  CanvasBlock,
 } from './types.ts';
 import {
   INITIAL_CREATOR_PROFILE,
@@ -17,8 +20,15 @@ import {
   INITIAL_TIPS,
   INITIAL_PRODUCTS,
   INITIAL_ORDERS,
+  INITIAL_MENU_ITEMS,
+  INITIAL_TABLE_ORDERS,
+  INITIAL_CANVAS_BLOCKS,
 } from './data/mockData.ts';
-import { Navbar } from './components/Navbar.tsx';
+import { Navbar, AppActiveTab } from './components/Navbar.tsx';
+import { WebstudioCanvas } from './components/Builder/WebstudioCanvas.tsx';
+import { RestaurantTab } from './components/Restaurant/RestaurantTab.tsx';
+import { TableOrderModal } from './components/Restaurant/TableOrderModal.tsx';
+import { QRStudioTab } from './components/QRStudio/QRStudioTab.tsx';
 import { LinksEditor } from './components/LinksEditor.tsx';
 import { ThemeSelector } from './components/ThemeSelector.tsx';
 import { AnalyticsDashboard } from './components/AnalyticsDashboard.tsx';
@@ -31,6 +41,7 @@ import { ShareModal } from './components/ShareModal.tsx';
 import { AuthModal } from './components/AuthModal.tsx';
 import { AuthProvider, useAuth } from './context/AuthContext.tsx';
 import { updateDynamicMetaTags } from './utils/seo.ts';
+import { saveCreatorToFirestore, saveTableOrderToFirestore } from './firebase/firestoreSync.ts';
 import { Smartphone, ExternalLink } from 'lucide-react';
 
 function AppInner() {
@@ -133,10 +144,40 @@ function AppInner() {
     return INITIAL_ORDERS;
   });
 
+  // Restaurant Menu & Table Ordering State
+  const [menuItems, setMenuItems] = useState<MenuItem[]>(() => {
+    const saved = localStorage.getItem('omnilink_menu_items');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) {}
+    }
+    return INITIAL_MENU_ITEMS;
+  });
+
+  const [tableOrders, setTableOrders] = useState<TableOrder[]>(() => {
+    const saved = localStorage.getItem('omnilink_table_orders');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) {}
+    }
+    return INITIAL_TABLE_ORDERS;
+  });
+
+  // Webstudio Visual Canvas Blocks
+  const [canvasBlocks, setCanvasBlocks] = useState<CanvasBlock[]>(() => {
+    const saved = localStorage.getItem('omnilink_canvas_blocks');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) {}
+    }
+    return INITIAL_CANVAS_BLOCKS;
+  });
+
   // Workspace Navigation & Controls
-  const [activeTab, setActiveTab] = useState<
-    'links' | 'appearance' | 'analytics' | 'monetize' | 'store' | 'audience' | 'settings'
-  >('links');
+  const [activeTab, setActiveTab] = useState<AppActiveTab>('canvas');
   const [isDarkMode, setIsDarkMode] = useState<boolean>(true);
   const [lang, setLang] = useState<SupportedLanguage>('en');
   const [showMobileSimulator, setShowMobileSimulator] = useState<boolean>(true);
@@ -153,11 +194,26 @@ function AppInner() {
     }
   }, [isDarkMode]);
 
-  // Persist local changes
+  // Persist local changes and Firestore sync
   useEffect(() => {
     localStorage.setItem('omnilink_profile', JSON.stringify(profile));
     updateDynamicMetaTags(profile);
-  }, [profile]);
+    if (user) {
+      saveCreatorToFirestore(user.uid, profile, canvasBlocks, menuItems, products);
+    }
+  }, [profile, user, canvasBlocks, menuItems, products]);
+
+  useEffect(() => {
+    localStorage.setItem('omnilink_menu_items', JSON.stringify(menuItems));
+  }, [menuItems]);
+
+  useEffect(() => {
+    localStorage.setItem('omnilink_table_orders', JSON.stringify(tableOrders));
+  }, [tableOrders]);
+
+  useEffect(() => {
+    localStorage.setItem('omnilink_canvas_blocks', JSON.stringify(canvasBlocks));
+  }, [canvasBlocks]);
 
   useEffect(() => {
     localStorage.setItem('omnilink_links', JSON.stringify(links));
@@ -182,6 +238,19 @@ function AppInner() {
   useEffect(() => {
     localStorage.setItem('omnilink_orders', JSON.stringify(orders));
   }, [orders]);
+
+  // Handle new dine-in table order
+  const handleAddTableOrder = (newOrder: TableOrder) => {
+    setTableOrders((prev) => [newOrder, ...prev]);
+    saveTableOrderToFirestore(newOrder);
+
+    // Update analytics revenue
+    setAnalytics((prev) => ({
+      ...prev,
+      totalRevenue: prev.totalRevenue + newOrder.totalAmount,
+      totalClicks: prev.totalClicks + 1,
+    }));
+  };
 
   // Handle new digital product order in real time
   const handleAddOrder = (newOrder: ProductOrder) => {
@@ -233,6 +302,12 @@ function AppInner() {
     );
   };
 
+  // Standalone Table Order modal state
+  const [showOrderModal, setShowOrderModal] = useState(false);
+  const activeOrdersCount = tableOrders.filter(
+    (o) => o.status === 'Received' || o.status === 'Preparing'
+  ).length;
+
   // If user requests full-screen public view
   if (showFullPublicView) {
     return (
@@ -242,9 +317,13 @@ function AppInner() {
           links={links}
           setLinks={setLinks}
           products={products}
+          menuItems={menuItems}
+          blocks={canvasBlocks}
+          tableOrders={tableOrders}
           onAddSubscriber={handleAddSubscriber}
           onAddTip={handleAddTip}
           onAddOrder={handleAddOrder}
+          onAddTableOrder={handleAddTableOrder}
           lang={lang}
           isStandalone={true}
           onCloseStandalone={() => setShowFullPublicView(false)}
@@ -279,6 +358,7 @@ function AppInner() {
         showMobileSimulator={showMobileSimulator}
         setShowMobileSimulator={setShowMobileSimulator}
         customDomain={profile.customDomain}
+        activeOrdersCount={activeOrdersCount}
       />
 
       {/* Main Studio Viewport (2-column split with Live Mobile Simulator) */}
@@ -286,8 +366,47 @@ function AppInner() {
         {/* Left Column: Active Editor Workspace */}
         <section
           aria-label="Editor Workspace"
-          className="flex-1 overflow-y-auto px-6 py-8 md:px-10 max-w-5xl"
+          className="flex-1 overflow-y-auto px-6 py-8 md:px-10 max-w-6xl"
         >
+          {activeTab === 'canvas' && (
+            <WebstudioCanvas
+              blocks={canvasBlocks}
+              setBlocks={setCanvasBlocks}
+              menuItems={menuItems}
+              products={products}
+              onOpenTableOrderModal={() => setShowOrderModal(true)}
+            />
+          )}
+
+          {activeTab === 'restaurant' && (
+            <RestaurantTab
+              menuItems={menuItems}
+              setMenuItems={setMenuItems}
+              tableOrders={tableOrders}
+              setTableOrders={setTableOrders}
+              onOpenQRStudioWithTable={() => setActiveTab('qr')}
+              restaurantName={profile.name}
+            />
+          )}
+
+          {activeTab === 'qr' && (
+            <QRStudioTab
+              currentUrl={profile.customDomain ? `https://${profile.customDomain}` : `https://omnilink.me/${profile.handle}`}
+              creatorName={profile.name}
+              creatorHandle={profile.handle}
+            />
+          )}
+
+          {activeTab === 'store' && (
+            <DigitalStoreTab
+              products={products}
+              setProducts={setProducts}
+              orders={orders}
+              setOrders={setOrders}
+              profile={profile}
+            />
+          )}
+
           {activeTab === 'links' && (
             <LinksEditor
               links={links}
@@ -306,24 +425,6 @@ function AppInner() {
               links={links}
               subscribers={subscribers}
               tips={tips}
-              profile={profile}
-            />
-          )}
-
-          {activeTab === 'monetize' && (
-            <MonetizationTab
-              links={links}
-              setLinks={setLinks}
-              tips={tips}
-            />
-          )}
-
-          {activeTab === 'store' && (
-            <DigitalStoreTab
-              products={products}
-              setProducts={setProducts}
-              orders={orders}
-              setOrders={setOrders}
               profile={profile}
             />
           )}
@@ -376,9 +477,13 @@ function AppInner() {
                   links={links}
                   setLinks={setLinks}
                   products={products}
+                  menuItems={menuItems}
+                  blocks={canvasBlocks}
+                  tableOrders={tableOrders}
                   onAddSubscriber={handleAddSubscriber}
                   onAddTip={handleAddTip}
                   onAddOrder={handleAddOrder}
+                  onAddTableOrder={handleAddTableOrder}
                   lang={lang}
                   isStandalone={false}
                   onOpenShareModal={() => setShowShareModal(true)}
@@ -391,6 +496,15 @@ function AppInner() {
           </aside>
         )}
       </main>
+
+      {/* Standalone Table Order Simulator Modal */}
+      <TableOrderModal
+        isOpen={showOrderModal}
+        onClose={() => setShowOrderModal(false)}
+        menuItems={menuItems}
+        restaurantName={profile.name}
+        onPlaceOrder={handleAddTableOrder}
+      />
 
       {/* Share Profile & Campaign UTM Modal */}
       <ShareModal

@@ -15,9 +15,20 @@ import { SupportedLanguage } from '../types.ts';
 import { getTranslation } from '../utils/i18n.ts';
 import { useAuth } from '../context/AuthContext.tsx';
 
+export type AppActiveTab =
+  | 'canvas'
+  | 'restaurant'
+  | 'qr'
+  | 'store'
+  | 'links'
+  | 'appearance'
+  | 'analytics'
+  | 'audience'
+  | 'settings';
+
 interface NavbarProps {
-  activeTab: 'links' | 'appearance' | 'analytics' | 'monetize' | 'store' | 'audience' | 'settings';
-  setActiveTab: (tab: 'links' | 'appearance' | 'analytics' | 'monetize' | 'store' | 'audience' | 'settings') => void;
+  activeTab: AppActiveTab;
+  setActiveTab: (tab: AppActiveTab) => void;
   lang: SupportedLanguage;
   setLang: (lang: SupportedLanguage) => void;
   isDarkMode: boolean;
@@ -28,6 +39,7 @@ interface NavbarProps {
   showMobileSimulator: boolean;
   setShowMobileSimulator: (show: boolean) => void;
   customDomain: string;
+  activeOrdersCount?: number;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -43,6 +55,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   showMobileSimulator,
   setShowMobileSimulator,
   customDomain,
+  activeOrdersCount = 0,
 }) => {
   const { user, logout } = useAuth();
   const languages: { code: SupportedLanguage; label: string }[] = [
@@ -56,104 +69,133 @@ export const Navbar: React.FC<NavbarProps> = ({
 
   return (
     <header className="sticky top-0 z-30 flex items-center justify-between gap-6 px-6 py-3.5 border-b transition-colors bg-white/95 dark:bg-neutral-900/95 backdrop-blur-md border-neutral-200 dark:border-neutral-800">
-      {/* Zone 1: Single text element wordmark */}
+      {/* Zone 1: Wordmark */}
       <div className="flex items-center gap-3 shrink-0">
         <a
           href="#"
           onClick={(e) => {
             e.preventDefault();
-            setActiveTab('links');
+            setActiveTab('canvas');
           }}
-          className="text-lg font-bold tracking-tight text-neutral-900 dark:text-white whitespace-nowrap"
+          className="text-lg font-bold tracking-tight text-neutral-900 dark:text-white whitespace-nowrap flex items-center gap-2"
         >
-          OmniLink
+          <span className="w-2.5 h-2.5 rounded-full bg-amber-500 inline-block animate-pulse" />
+          <span>OmniLink</span>
         </a>
-        <span className="hidden sm:inline-block text-xs font-mono text-neutral-400 dark:text-neutral-500 truncate max-w-[160px]">
+        <span className="hidden sm:inline-block text-xs font-mono text-neutral-400 dark:text-neutral-500 truncate max-w-[140px]">
           {customDomain || 'links.studio'}
         </span>
       </div>
 
-      {/* Zone 2: Clean single-line text navigation links */}
-      <nav className="hidden lg:flex items-center gap-7 text-sm font-medium text-neutral-600 dark:text-neutral-300">
+      {/* Zone 2: Navigation Links */}
+      <nav className="hidden lg:flex items-center gap-5 text-xs font-medium text-neutral-600 dark:text-neutral-300">
+        {/* Canvas (Webstudio) */}
         <button
           type="button"
-          onClick={() => setActiveTab('links')}
-          className={`cursor-pointer transition-colors whitespace-nowrap pb-0.5 border-b-2 ${
-            activeTab === 'links'
-              ? 'border-neutral-900 dark:border-white text-neutral-900 dark:text-white font-semibold'
+          onClick={() => setActiveTab('canvas')}
+          className={`cursor-pointer transition-colors whitespace-nowrap pb-0.5 border-b-2 flex items-center gap-1.5 ${
+            activeTab === 'canvas'
+              ? 'border-neutral-900 dark:border-white text-neutral-900 dark:text-white font-bold'
               : 'border-transparent hover:text-neutral-900 dark:hover:text-white'
           }`}
         >
-          {getTranslation(lang, 'links')}
+          <span>Canvas</span>
+          <span className="px-1.5 py-0.2 rounded text-[9px] font-bold bg-sky-100 text-sky-700 dark:bg-sky-950 dark:text-sky-300">
+            Webstudio
+          </span>
         </button>
+
+        {/* Restaurant Menu & Table KOT */}
         <button
           type="button"
-          onClick={() => setActiveTab('appearance')}
-          className={`cursor-pointer transition-colors whitespace-nowrap pb-0.5 border-b-2 ${
-            activeTab === 'appearance'
-              ? 'border-neutral-900 dark:border-white text-neutral-900 dark:text-white font-semibold'
-              : 'border-transparent hover:text-neutral-900 dark:hover:text-white'
+          onClick={() => setActiveTab('restaurant')}
+          className={`cursor-pointer transition-colors whitespace-nowrap pb-0.5 border-b-2 flex items-center gap-1.5 ${
+            activeTab === 'restaurant'
+              ? 'border-amber-500 text-amber-500 font-bold'
+              : 'border-transparent hover:text-amber-500'
           }`}
         >
-          {getTranslation(lang, 'design')}
+          <span>Restaurant</span>
+          {activeOrdersCount > 0 ? (
+            <span className="px-1.5 py-0.2 rounded-full text-[9px] font-bold bg-amber-500 text-neutral-950">
+              {activeOrdersCount}
+            </span>
+          ) : (
+            <span className="px-1.5 py-0.2 rounded text-[9px] font-bold bg-amber-150 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300">
+              KOT
+            </span>
+          )}
         </button>
+
+        {/* QR Studio (QR Monkey / QRCodeChimp) */}
         <button
           type="button"
-          onClick={() => setActiveTab('analytics')}
-          className={`cursor-pointer transition-colors whitespace-nowrap pb-0.5 border-b-2 ${
-            activeTab === 'analytics'
-              ? 'border-neutral-900 dark:border-white text-neutral-900 dark:text-white font-semibold'
-              : 'border-transparent hover:text-neutral-900 dark:hover:text-white'
+          onClick={() => setActiveTab('qr')}
+          className={`cursor-pointer transition-colors whitespace-nowrap pb-0.5 border-b-2 flex items-center gap-1.5 ${
+            activeTab === 'qr'
+              ? 'border-orange-500 text-orange-500 font-bold'
+              : 'border-transparent hover:text-orange-500'
           }`}
         >
-          {getTranslation(lang, 'analytics')}
+          <span>QR Studio</span>
+          <span className="px-1.5 py-0.2 rounded text-[9px] font-bold bg-orange-100 text-orange-700 dark:bg-orange-950 dark:text-orange-300">
+            Vector
+          </span>
         </button>
-        <button
-          type="button"
-          onClick={() => setActiveTab('monetize')}
-          className={`cursor-pointer transition-colors whitespace-nowrap pb-0.5 border-b-2 ${
-            activeTab === 'monetize'
-              ? 'border-neutral-900 dark:border-white text-neutral-900 dark:text-white font-semibold'
-              : 'border-transparent hover:text-neutral-900 dark:hover:text-white'
-          }`}
-        >
-          {getTranslation(lang, 'monetization')}
-        </button>
+
+        {/* Store (Gumroad) */}
         <button
           type="button"
           onClick={() => setActiveTab('store')}
           className={`cursor-pointer transition-colors whitespace-nowrap pb-0.5 border-b-2 flex items-center gap-1.5 ${
             activeTab === 'store'
-              ? 'border-pink-600 text-pink-600 dark:border-pink-400 dark:text-pink-400 font-semibold'
+              ? 'border-pink-600 text-pink-600 dark:border-pink-400 dark:text-pink-400 font-bold'
               : 'border-transparent hover:text-pink-600 dark:hover:text-pink-400'
           }`}
         >
           <span>Store</span>
-          <span className="px-1.5 py-0.2 rounded text-[10px] font-bold bg-pink-100 text-pink-700 dark:bg-pink-950/60 dark:text-pink-300">
+          <span className="px-1.5 py-0.2 rounded text-[9px] font-bold bg-pink-100 text-pink-700 dark:bg-pink-950/60 dark:text-pink-300">
             Gumroad
           </span>
         </button>
+
+        {/* Links (Linktree / blstrco) */}
         <button
           type="button"
-          onClick={() => setActiveTab('audience')}
+          onClick={() => setActiveTab('links')}
           className={`cursor-pointer transition-colors whitespace-nowrap pb-0.5 border-b-2 ${
-            activeTab === 'audience'
-              ? 'border-neutral-900 dark:border-white text-neutral-900 dark:text-white font-semibold'
+            activeTab === 'links'
+              ? 'border-neutral-900 dark:border-white text-neutral-900 dark:text-white font-bold'
               : 'border-transparent hover:text-neutral-900 dark:hover:text-white'
           }`}
         >
-          {getTranslation(lang, 'subscribers')}
+          Links
         </button>
+
+        {/* Analytics */}
+        <button
+          type="button"
+          onClick={() => setActiveTab('analytics')}
+          className={`cursor-pointer transition-colors whitespace-nowrap pb-0.5 border-b-2 ${
+            activeTab === 'analytics'
+              ? 'border-neutral-900 dark:border-white text-neutral-900 dark:text-white font-bold'
+              : 'border-transparent hover:text-neutral-900 dark:hover:text-white'
+          }`}
+        >
+          Analytics
+        </button>
+
+        {/* Settings */}
         <button
           type="button"
           onClick={() => setActiveTab('settings')}
           className={`cursor-pointer transition-colors whitespace-nowrap pb-0.5 border-b-2 ${
             activeTab === 'settings'
-              ? 'border-neutral-900 dark:border-white text-neutral-900 dark:text-white font-semibold'
+              ? 'border-neutral-900 dark:border-white text-neutral-900 dark:text-white font-bold'
               : 'border-transparent hover:text-neutral-900 dark:hover:text-white'
           }`}
         >
-          {getTranslation(lang, 'settings')}
+          Settings
         </button>
       </nav>
 

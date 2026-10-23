@@ -4,7 +4,7 @@ export type QrErrorCorrectionLevel = 'L' | 'M' | 'Q' | 'H';
 export type QrEyeShape = 'square' | 'rounded' | 'circle';
 export type QrBodyShape = 'square' | 'dots' | 'rounded';
 export type QrFrameStyle = 'none' | 'scan-me-bottom' | 'scan-me-top' | 'polaroid' | 'badge';
-export type QrLogoType = 'none' | 'avatar' | 'star' | 'sparkles' | 'link' | 'coffee' | 'heart' | 'shop';
+export type QrLogoType = 'none' | 'avatar' | 'star' | 'sparkles' | 'link' | 'coffee' | 'heart' | 'shop' | 'utensils' | 'table';
 
 export interface QrOptions {
   errorCorrectionLevel?: QrErrorCorrectionLevel;
@@ -27,6 +27,7 @@ export interface QrOptions {
   logoUrl?: string;
   creatorName?: string;
   creatorHandle?: string;
+  tableNumber?: string;
 }
 
 const DEFAULT_OPTIONS: Required<QrOptions> = {
@@ -48,6 +49,7 @@ const DEFAULT_OPTIONS: Required<QrOptions> = {
   logoUrl: '',
   creatorName: 'OmniLink Creator',
   creatorHandle: 'profile',
+  tableNumber: '',
 };
 
 /**
@@ -88,6 +90,8 @@ const CENTER_ICONS: Record<string, string> = {
   coffee: '<path fill="currentColor" d="M20 3H4v10c0 2.21 1.79 4 4 4h6c2.21 0 4-1.79 4-4v-3h2c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 5h-2V5h2v3zM4 19h16v2H4z"/>',
   heart: '<path fill="currentColor" d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>',
   shop: '<path fill="currentColor" d="M16 6V4c0-1.11-.89-2-2-2h-4c-1.11 0-2 .89-2 2v2H2v13c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6h-6zm-6-2h4v2h-4V4zm10 15H4V8h16v11z"/>',
+  utensils: '<path fill="currentColor" d="M11 9H9V2H7v7H5V2H3v7c0 2.12 1.66 3.84 3.75 3.97V22h2.5v-9.03C11.34 12.84 13 11.12 13 9V2h-2v7zm5-3v8h2.5v8H21V2c-2.76 0-5 2.24-5 4z"/>',
+  table: '<path fill="currentColor" d="M4 6h16v2H4zm1 4h14v2H5zm1 4h12v6h-2v-4H8v4H6z"/>',
 };
 
 /**
