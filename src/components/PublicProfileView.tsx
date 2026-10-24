@@ -23,6 +23,7 @@ import {
   ChefHat,
   QrCode,
   Video,
+  LayoutGrid,
 } from 'lucide-react';
 import {
   CreatorProfile,
@@ -245,6 +246,83 @@ export const PublicProfileView: React.FC<PublicProfileViewProps> = ({
   const activeBlocks = blocks
     .filter((b) => b.visible)
     .sort((a, b) => a.order - b.order);
+
+  // Filter Categories
+  type FilterCategory = 'all' | 'links' | 'menu' | 'store' | 'support';
+  const [activeCategory, setActiveCategory] = useState<FilterCategory>('all');
+
+  const getBlockCategory = (block: CanvasBlock): FilterCategory => {
+    switch (block.type) {
+      case 'menu_category':
+      case 'menu_item':
+      case 'qr_card':
+        return 'menu';
+      case 'product':
+        return 'store';
+      case 'tip_jar':
+      case 'subscription_tiers':
+      case 'newsletter':
+        return 'support';
+      case 'link':
+      case 'header':
+      case 'spotify':
+      case 'video':
+      case 'socials':
+      case 'divider':
+      default:
+        return 'links';
+    }
+  };
+
+  const getLinkCategory = (link: LinkItem): FilterCategory => {
+    switch (link.type) {
+      case 'restaurant_menu':
+        return 'menu';
+      case 'product':
+        return 'store';
+      case 'tip_jar':
+      case 'subscription_tiers':
+      case 'newsletter':
+        return 'support';
+      case 'header':
+      case 'standard':
+      case 'password':
+      case 'spotify':
+      case 'youtube':
+      default:
+        return 'links';
+    }
+  };
+
+  const blocksMode = activeBlocks.length > 0;
+
+  const linksCount = blocksMode
+    ? activeBlocks.filter((b) => getBlockCategory(b) === 'links').length
+    : activeLinks.filter((l) => getLinkCategory(l) === 'links').length;
+
+  const menuCount = blocksMode
+    ? activeBlocks.filter((b) => getBlockCategory(b) === 'menu').length
+    : menuItems.length;
+
+  const storeCount = blocksMode
+    ? activeBlocks.filter((b) => getBlockCategory(b) === 'store').length
+    : products.filter((p) => p.isPublished).length;
+
+  const supportCount = blocksMode
+    ? activeBlocks.filter((b) => getBlockCategory(b) === 'support').length
+    : activeLinks.filter((l) => getLinkCategory(l) === 'support').length;
+
+  const totalItems = blocksMode ? activeBlocks.length : activeLinks.length;
+
+  const filteredBlocks = activeBlocks.filter((b) => {
+    if (activeCategory === 'all') return true;
+    return getBlockCategory(b) === activeCategory;
+  });
+
+  const filteredLinks = activeLinks.filter((l) => {
+    if (activeCategory === 'all') return true;
+    return getLinkCategory(l) === activeCategory;
+  });
 
   const getBlockRadiusClass = (override?: string) => {
     const rad = override || theme.cardRadius;
@@ -1025,13 +1103,163 @@ export const PublicProfileView: React.FC<PublicProfileViewProps> = ({
           </div>
         )}
 
+        {/* Interactive Category Navigation Bar */}
+        {totalItems > 1 && (
+          <div className="w-full overflow-x-auto no-scrollbar py-1">
+            <div
+              className="flex items-center gap-1.5 min-w-max p-1.5 rounded-2xl border shadow-xs transition-all"
+              style={{
+                backgroundColor: theme.cardBg,
+                borderColor: theme.cardBorder,
+              }}
+            >
+              <button
+                type="button"
+                onClick={() => setActiveCategory('all')}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                  activeCategory === 'all'
+                    ? 'shadow-xs scale-[1.02]'
+                    : 'opacity-70 hover:opacity-100'
+                }`}
+                style={
+                  activeCategory === 'all'
+                    ? {
+                        backgroundColor: theme.accentColor,
+                        color: theme.isDark ? '#000000' : '#FFFFFF',
+                      }
+                    : { color: theme.cardText }
+                }
+              >
+                <LayoutGrid className="w-3.5 h-3.5" />
+                <span>All</span>
+                <span className="px-1.5 py-0.2 rounded-full text-[10px] font-mono bg-black/20 dark:bg-white/20">
+                  {totalItems}
+                </span>
+              </button>
+
+              {linksCount > 0 && (
+                <button
+                  type="button"
+                  onClick={() => setActiveCategory('links')}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                    activeCategory === 'links'
+                      ? 'shadow-xs scale-[1.02]'
+                      : 'opacity-70 hover:opacity-100'
+                  }`}
+                  style={
+                    activeCategory === 'links'
+                      ? {
+                          backgroundColor: theme.accentColor,
+                          color: theme.isDark ? '#000000' : '#FFFFFF',
+                        }
+                      : { color: theme.cardText }
+                  }
+                >
+                  <ExternalLink className="w-3.5 h-3.5" />
+                  <span>Links & Media</span>
+                  <span className="px-1.5 py-0.2 rounded-full text-[10px] font-mono bg-black/20 dark:bg-white/20">
+                    {linksCount}
+                  </span>
+                </button>
+              )}
+
+              {menuCount > 0 && (
+                <button
+                  type="button"
+                  onClick={() => setActiveCategory('menu')}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                    activeCategory === 'menu'
+                      ? 'shadow-xs scale-[1.02]'
+                      : 'opacity-70 hover:opacity-100'
+                  }`}
+                  style={
+                    activeCategory === 'menu'
+                      ? {
+                          backgroundColor: theme.accentColor,
+                          color: theme.isDark ? '#000000' : '#FFFFFF',
+                        }
+                      : { color: theme.cardText }
+                  }
+                >
+                  <Utensils className="w-3.5 h-3.5" />
+                  <span>Menu</span>
+                  <span className="px-1.5 py-0.2 rounded-full text-[10px] font-mono bg-black/20 dark:bg-white/20">
+                    {menuCount}
+                  </span>
+                </button>
+              )}
+
+              {storeCount > 0 && (
+                <button
+                  type="button"
+                  onClick={() => setActiveCategory('store')}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                    activeCategory === 'store'
+                      ? 'shadow-xs scale-[1.02]'
+                      : 'opacity-70 hover:opacity-100'
+                  }`}
+                  style={
+                    activeCategory === 'store'
+                      ? {
+                          backgroundColor: theme.accentColor,
+                          color: theme.isDark ? '#000000' : '#FFFFFF',
+                        }
+                      : { color: theme.cardText }
+                  }
+                >
+                  <ShoppingBag className="w-3.5 h-3.5" />
+                  <span>Store</span>
+                  <span className="px-1.5 py-0.2 rounded-full text-[10px] font-mono bg-black/20 dark:bg-white/20">
+                    {storeCount}
+                  </span>
+                </button>
+              )}
+
+              {supportCount > 0 && (
+                <button
+                  type="button"
+                  onClick={() => setActiveCategory('support')}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                    activeCategory === 'support'
+                      ? 'shadow-xs scale-[1.02]'
+                      : 'opacity-70 hover:opacity-100'
+                  }`}
+                  style={
+                    activeCategory === 'support'
+                      ? {
+                          backgroundColor: theme.accentColor,
+                          color: theme.isDark ? '#000000' : '#FFFFFF',
+                        }
+                      : { color: theme.cardText }
+                  }
+                >
+                  <Heart className="w-3.5 h-3.5" />
+                  <span>Support</span>
+                  <span className="px-1.5 py-0.2 rounded-full text-[10px] font-mono bg-black/20 dark:bg-white/20">
+                    {supportCount}
+                  </span>
+                </button>
+              )}
+            </div>
+          </div>
+        )}
+
         {/* Main Content: Canvas Blocks (Webstudio Layout) OR Fallback Links */}
         <div className="w-full space-y-3">
           {activeBlocks.length > 0 ? (
-            activeBlocks.map((block) => renderCanvasBlock(block))
+            filteredBlocks.length > 0 ? (
+              filteredBlocks.map((block) => renderCanvasBlock(block))
+            ) : (
+              <div
+                className="py-12 text-center rounded-2xl border border-dashed text-xs opacity-70"
+                style={{ borderColor: theme.cardBorder }}
+              >
+                No items in this category.
+              </div>
+            )
           ) : (
             <>
-              {activeLinks.map((link) => {
+              {filteredLinks.map((link) => {
                 // Case 1: Section Header
                 if (link.type === 'header') {
                   return (

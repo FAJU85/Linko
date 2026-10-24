@@ -1,0 +1,45 @@
+# blstrco Enterprise CI/CD Buildkite Pipeline
+# Organization: blstrco (Linktree Infrastructure & Engineering)
+
+steps:
+  - label: "🔒 Security & Vulnerability Scan (Wiz / Checkov)"
+    plugins:
+      - blstrco/wiz-scan-buildkite-plugin#v1.4.0:
+          severity: "HIGH,CRITICAL"
+          fail_on_detection: true
+      - checkov#v2.1.0:
+          framework: ["terraform", "dockerfile"]
+
+  - label: "⚡ Code Quality & Type Check"
+    command:
+      - "npm ci"
+      - "npm run lint"
+      - "npx tsc --noEmit"
+    agents:
+      queue: "blstr-standard-runners"
+
+  - label: "🏗️ Build Vite Bundle & Server Artifacts"
+    command:
+      - "npm run build"
+    artifact_paths:
+      - "dist/**/*"
+
+  - label: "☁️ Terraform Infrastructure Plan (OIDC Auth)"
+    command:
+      - "cd .blstrco/terraform"
+      - "terraform init"
+      - "terraform plan -out=tfplan"
+    plugins:
+      - blstrco/oidc-role-assumption-buildkite-plugin#v2.0.0:
+          role_arn: "arn:aws:iam::123456789012:role/blstrco-buildkite-deployer"
+
+  - block: "🚀 Deploy to Production Edge"
+    prompt: "Confirm deployment to global edge CDN and cluster?"
+
+  - label: "🚢 Terraform Apply & Edge Invalidation"
+    command:
+      - "cd .blstrco/terraform"
+      - "terraform apply tfplan"
+    plugins:
+      - blstrco/oidc-role-assumption-buildkite-plugin#v2.0.0:
+          role_arn: "arn:aws:iam::123456789012:role/blstrco-buildkite-deployer"

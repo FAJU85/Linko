@@ -310,4 +310,4 @@ export interface AnalyticsData {
   };
 }
 
-export type SupportedLanguage = 'en' | 'es' | 'fr' | 'de' | 'ja' | 'pt';
+export type SupportedLanguage = 'en' | 'es' | 'fr' | 'de' | 'ja' | 'pt' | 'ar';

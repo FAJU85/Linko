@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import {
   Palette,
   Check,
@@ -8,6 +8,9 @@ import {
   User,
   MapPin,
   BadgeCheck,
+  Camera,
+  Upload,
+  Image as ImageIcon,
 } from 'lucide-react';
 import { CreatorProfile, CustomTheme } from '../types.ts';
 import { THEME_PRESETS } from '../data/mockData.ts';
@@ -19,6 +22,7 @@ interface ThemeSelectorProps {
 
 export const ThemeSelector: React.FC<ThemeSelectorProps> = ({ profile, setProfile }) => {
   const currentTheme = profile.theme;
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleSelectPreset = (preset: CustomTheme) => {
     setProfile((prev) => ({
@@ -44,15 +48,36 @@ export const ThemeSelector: React.FC<ThemeSelectorProps> = ({ profile, setProfil
     }));
   };
 
-  const accentColors = [
-    '#38BDF8', // Sky
-    '#F43F5E', // Rose
-    '#10B981', // Emerald
-    '#818CF8', // Indigo
-    '#F59E0B', // Amber
-    '#EC4899', // Pink
-    '#0F172A', // Slate
-    '#FFFFFF', // Pure White
+  const handleAvatarFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        if (typeof reader.result === 'string') {
+          handleUpdateProfileField('avatarUrl', reader.result);
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const PRESET_AVATARS = [
+    {
+      name: 'Architect',
+      url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=400',
+    },
+    {
+      name: 'Studio',
+      url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=400',
+    },
+    {
+      name: 'Technologist',
+      url: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=400',
+    },
+    {
+      name: 'Designer',
+      url: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&q=80&w=400',
+    },
   ];
 
   return (
@@ -63,10 +88,84 @@ export const ThemeSelector: React.FC<ThemeSelectorProps> = ({ profile, setProfil
           <div className="flex items-center gap-2">
             <User className="w-4 h-4 text-neutral-500 dark:text-neutral-400" />
             <h3 className="text-sm font-semibold text-neutral-900 dark:text-white">
-              Profile Header & Identity
+              Profile Header & Personal Photo
             </h3>
           </div>
           <span className="text-xs text-neutral-400 font-mono">@{profile.handle}</span>
+        </div>
+
+        {/* Avatar Photo Editor */}
+        <div className="p-4 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-neutral-50/60 dark:bg-neutral-800/40 space-y-3">
+          <div className="text-xs font-medium text-neutral-700 dark:text-neutral-300">
+            Personal Avatar Photo
+          </div>
+
+          <div className="flex flex-col sm:flex-row items-center gap-4">
+            {/* Avatar Preview */}
+            <div className="relative group shrink-0">
+              <img
+                src={profile.avatarUrl || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=400'}
+                alt={profile.name}
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=400';
+                }}
+                className="w-20 h-20 rounded-full object-cover border-2 border-white dark:border-neutral-700 shadow-md ring-2 ring-neutral-200 dark:ring-neutral-800"
+              />
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                className="absolute inset-0 rounded-full bg-black/50 text-white opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity cursor-pointer"
+                title="Change Photo"
+              >
+                <Camera className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Upload Controls & URL Input */}
+            <div className="flex-1 space-y-2.5 w-full">
+              <div className="flex items-center gap-2">
+                <input
+                  type="text"
+                  value={profile.avatarUrl}
+                  onChange={(e) => handleUpdateProfileField('avatarUrl', e.target.value)}
+                  placeholder="https://example.com/avatar.jpg"
+                  className="flex-1 px-3 py-1.5 text-xs font-mono rounded-lg border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white focus:outline-none"
+                />
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="px-3 py-1.5 text-xs font-semibold text-white bg-neutral-900 dark:bg-sky-600 hover:bg-neutral-800 dark:hover:bg-sky-500 rounded-lg transition-colors flex items-center gap-1.5 cursor-pointer shrink-0"
+                >
+                  <Upload className="w-3.5 h-3.5" />
+                  <span>Upload Local File</span>
+                </button>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleAvatarFileUpload}
+                  className="hidden"
+                />
+              </div>
+
+              {/* Preset Avatars */}
+              <div className="flex items-center gap-2 pt-1">
+                <span className="text-[11px] text-neutral-400 font-mono">Quick Presets:</span>
+                <div className="flex items-center gap-1.5">
+                  {PRESET_AVATARS.map((av) => (
+                    <button
+                      key={av.name}
+                      type="button"
+                      onClick={() => handleUpdateProfileField('avatarUrl', av.url)}
+                      className="text-[10px] font-medium px-2 py-0.5 rounded-md border border-neutral-200 dark:border-neutral-700 hover:border-sky-500 bg-white dark:bg-neutral-900 text-neutral-700 dark:text-neutral-300 cursor-pointer"
+                    >
+                      {av.name}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -288,7 +387,7 @@ export const ThemeSelector: React.FC<ThemeSelectorProps> = ({ profile, setProfil
             Primary Accent & Focus Color
           </label>
           <div className="flex items-center gap-3">
-            {accentColors.map((color) => (
+            {['#38BDF8', '#F43F5E', '#10B981', '#818CF8', '#F59E0B', '#EC4899', '#0F172A', '#FFFFFF'].map((color) => (
               <button
                 key={color}
                 type="button"

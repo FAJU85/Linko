@@ -194,6 +194,12 @@ function AppInner() {
     }
   }, [isDarkMode]);
 
+  // Sync language and direction (RTL for Arabic)
+  useEffect(() => {
+    document.documentElement.lang = lang;
+    document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+  }, [lang]);
+
   // Persist local changes and Firestore sync
   useEffect(() => {
     localStorage.setItem('omnilink_profile', JSON.stringify(profile));
@@ -343,7 +349,7 @@ function AppInner() {
   }
 
   return (
-    <div className={`min-h-screen flex flex-col bg-neutral-50 dark:bg-neutral-950 text-neutral-900 dark:text-neutral-100 transition-colors`}>
+    <div className={`min-h-[100dvh] flex flex-col bg-neutral-50 dark:bg-neutral-950 text-neutral-900 dark:text-neutral-100 transition-colors`}>
       {/* Top Bar Contract Navigation */}
       <Navbar
         activeTab={activeTab}
@@ -366,7 +372,7 @@ function AppInner() {
         {/* Left Column: Active Editor Workspace */}
         <section
           aria-label="Editor Workspace"
-          className="flex-1 overflow-y-auto px-6 py-8 md:px-10 max-w-6xl"
+          className="flex-1 overflow-y-auto px-4 sm:px-6 md:px-10 py-5 sm:py-8 max-w-6xl w-full mx-auto"
         >
           {activeTab === 'canvas' && (
             <WebstudioCanvas
@@ -426,6 +432,7 @@ function AppInner() {
               subscribers={subscribers}
               tips={tips}
               profile={profile}
+              orders={orders}
             />
           )}
 

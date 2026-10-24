@@ -442,6 +442,92 @@ export const translations: Record<SupportedLanguage, Record<string, string>> = {
     dnsConfig: 'Guia de configuração DNS',
     saveChanges: 'Salvar alterações',
   },
+  ar: {
+    // Navigation & Tabs
+    links: 'الروابط',
+    design: 'المظهر',
+    analytics: 'التحليلات',
+    monetization: 'الربح',
+    subscribers: 'الجمهور',
+    settings: 'الإعدادات',
+    preview: 'معاينة',
+    share: 'مشاركة',
+    livePreview: 'معاينة مباشرة',
+    copyLink: 'نسخ الرابط',
+    linkCopied: 'تم نسخ الرابط إلى الحافظة!',
+    viewPublicPage: 'فتح الصفحة العامة',
+
+    // Profile & Creator
+    editProfile: 'تعديل الملف الشخصي',
+    displayName: 'اسم العرض',
+    bio: 'النبذة التعريفية',
+    location: 'الموقع',
+    verifiedBadge: 'صانع محتوى موثق',
+    customDomain: 'نطاق مخصص',
+
+    // Links Editor
+    addLink: 'إضافة عنصر',
+    reorder: 'إعادة الترتيب',
+    pinToTop: 'تثبيت في الأعلى',
+    active: 'نشط',
+    inactive: 'مخفي',
+    clicks: 'النقرات',
+    ctr: 'معدل النقر',
+    lockPassword: 'محمي بكلمة سر',
+    enterPassword: 'أدخل كلمة المرور للوصول إلى هذا المحتوى',
+    unlock: 'فتح المحتوى',
+    incorrectPassword: 'كلمة المرور غير صحيحة. حاول مرة أخرى.',
+    passwordHintLabel: 'تلميح',
+
+    // Monetization
+    tipJar: 'صندوق الدعم والتبَرُع',
+    sendTip: 'إرسال دعم',
+    supportWork: 'ادعم عملي الإبداعي',
+    customAmount: 'مبلغ مخصص',
+    supporterName: 'اسمك (اختياري)',
+    optionalMessage: 'اترك رسالة تشجيعية...',
+    tipSuccess: 'شكراً جزيلاً لدعمك الكريم!',
+    subscriptionTiers: 'باقات الاشتراك',
+    monthly: 'شهرياً',
+    yearly: 'سنوياً',
+    joinTier: 'الانضمام للباقة',
+    subscribedSuccess: 'تم الاشتراك في الباقة بنجاح!',
+    tierPerks: 'المزايا المتضمنة',
+
+    // Audience & Newsletter
+    newsletterTitle: 'ابقَ على اطلاع',
+    newsletterSubtitle: 'احصل على التحديثات الأسبوعية، والإصدارات الحصرية، والمقالات الخاصة.',
+    subscribe: 'اشتراك',
+    emailPlaceholder: 'أدخل عنوان بريدك الإلكتروني',
+    subSuccess: 'شكراً لاشتراكك! تفقد صندوق الوارد الخاص بك.',
+    gdprConsent: 'أوافق على استلام الرسائل الإلكترونية وأوافق على سياسة الخصوصية.',
+
+    // Analytics
+    overview: 'نظرة عامة على الأداء',
+    totalViews: 'إجمالي مشاهدات الصفحة',
+    uniqueVisitors: 'الزوار الفريدون',
+    totalClicks: 'إجمالي نقرات الروابط',
+    averageCtr: 'متوسط معدل النقر',
+    totalRevenue: 'إجمالي الإيرادات',
+    conversionRate: 'تحويل الجمهور',
+    bounceRate: 'معدل الارتداد',
+    trafficTrends: 'اتجاهات الزيارات والتفاعل عبر الوقت',
+    topLinks: 'الروابط الأعلى أداءً',
+    deviceTraffic: 'توزيع الأجهزة',
+    geoDistribution: 'الانتشار الجغرافي العالمي',
+    generateMonthlyReport: 'إنشاء التقرير الشهري',
+    exportData: 'تصدير البيانات التاريخية',
+
+    // Privacy & Cookie Banner
+    cookieNotice: 'نستخدم تحليلات صديقة للخصوصية لفهم حركة الجمهور بدون أدوات تتبع مزعجة.',
+    acceptCookies: 'قبول',
+    declineCookies: 'رفض',
+
+    // Custom Domain
+    domainStatus: 'حالة النطاق',
+    dnsConfig: 'دليل إعدادات DNS',
+    saveChanges: 'حفظ التغييرات',
+  },
 };
 
 export function getTranslation(lang: SupportedLanguage, key: string): string {
